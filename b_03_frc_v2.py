@@ -1,6 +1,8 @@
 import pandas
 
 from datetime import datetime
+from tabulate import tabulate
+
 output_array = []
 
 def print_output_array(string):
@@ -21,25 +23,6 @@ def format_currency(x):
 def styled_statement(statement, decoration, multiplier):
     """Displays a statement with a certain number of decorations on each side"""
     return f"{decoration * multiplier} {statement} {decoration * multiplier}"
-
-def int_check_low(question, low, error, exitcode=None):
-    """only accept numbers within a certain range"""
-
-    while True:
-        try:
-            # ask user for a number
-            response = input(question)
-            if response.lower() == exitcode:
-                return exitcode
-
-            # check if in range
-            if low <= int(response):
-                return int(response)
-            else: print(error)
-
-        # checks that number is valid
-        except ValueError:
-            print(error)
 
 def num_check(question, num_type, error, exitcode=None):
     """only accept numbers within a certain range"""
@@ -81,11 +64,17 @@ def get_expenses(exp_type, amount):
             print("You must enter at least one item before you can exit the expenses.")
             continue
 
-        # get amount of items
-        expense_amount = num_check("# Bought: ", "int", "Must be an integer more than zero!","xxx")
+        expense_amount = 1
+        if exp_type == "variable":
+            # get amount of items
+            expense_amount = num_check("# Bought: ", "int", "Must be an integer more than zero!","")
+
+            # if they entered nothing then default to predefined amount
+            if expense_amount == "":
+                expense_amount = amount
 
         # get cost of items
-        expense_cost = num_check("$ / item: ", "float", "Must be an integer more than zero!", "xxx")
+        expense_cost = num_check("$ / item: ", "float", "Must be an integer more than zero!")
 
         # append everything to arrays
         all_items.append(expense_item)
@@ -105,13 +94,21 @@ def get_expenses(exp_type, amount):
         expense_frame["Cost"] = expense_frame["Amount"] * expense_frame["$ / Item"]
     else:
         expense_frame["Cost"] = expense_frame["$ / Item"]
-        expense_frame.drop("Amount")
 
-
-    # return all items and subtotal
     subtotal = expense_frame["Cost"].sum()
 
-    return expense_frame, subtotal
+    # formatting frame and making into tabulate string
+    add_dollars = ["$ / Item", "Cost"]
+    for var_item in add_dollars:
+        expense_frame[var_item] = expense_frame[var_item].apply(format_currency)
+
+    if exp_type == "variable":
+        expense_string = tabulate(expense_frame, headers="keys", tablefmt="psql", showindex=False)
+    else:
+        expense_string = tabulate(expense_frame[["Item", "Cost"]], headers="keys", tablefmt="psql", showindex=False)
+
+    # return all items and subtotal
+    return expense_string, subtotal
 
 def yes_no(question, error):
     """returns the string if it meets anything in available_choices"""
@@ -167,9 +164,9 @@ item name as your product and today's date.
 # get product name and amount
 product_name = not_blank("Product Name: ", "Please enter a string")
 
-product_amount = int_check_low("Amount being produced: ", 0,"Please enter a valid integer")
+product_amount = num_check("Amount being produced: ", "int","Please enter a whole quantity larger than zero")
 
-print(f"You are making {product_amount} {product_name}s")
+print(f"You are making {product_amount} * {product_name}")
 print()
 
 # get variable expenses
@@ -192,12 +189,6 @@ if has_fixed == "yes":
     fixed_df = fixed_expenses[0]
     fixed_subtotal = fixed_expenses[1]
 
-add_dollars = ["$ / Item", "Cost"]
-for var_item in add_dollars:
-    variable_df[var_item] = variable_df[var_item].apply(format_currency)
-    if has_fixed == "y":
-        fixed_df[var_item] = fixed_df[var_item].apply(format_currency)
-
 total_cost = variable_subtotal + fixed_subtotal
 
 # defining variables for printing in output
@@ -210,13 +201,15 @@ print_output_array(styled_statement(f"Fundraising Calculator ({product_name}, {f
 print_output_array("\n")
 print_output_array(f"Quantity being made: {product_amount}\n")
 print_output_array(styled_statement("Variable Expenses", "=", 3))
-print_output_array(variable_df.to_string(index=False))
+print_output_array(variable_df)
 print_output_array(f"Variable Expense Subtotal: {format_currency(variable_subtotal)}\n")
 
 print_output_array(styled_statement("Fixed Expenses", "=", 3))
-if has_fixed == "y":
-    print_output_array(fixed_df.to_string(index=False))
+if has_fixed == "yes":
+    print_output_array(fixed_df)
     print_output_array(f"Fixed Expense Subtotal: {format_currency(fixed_subtotal)}\n")
+else:
+    print_output_array("There were no fixed expenses provided.")
 
 
 print_output_array(f"Total Expenses: {format_currency(total_cost)}")
