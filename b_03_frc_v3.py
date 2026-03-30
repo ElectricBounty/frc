@@ -3,8 +3,6 @@ import math # with cohen
 from datetime import datetime
 from tabulate import tabulate
 
-from TCCOM2.frc.c_03_expense_percents import selling_price
-
 output_array = []
 
 def print_output_array(string):
@@ -258,6 +256,14 @@ if has_fixed == "yes":
 
 total_cost = variable_subtotal + fixed_subtotal
 
+# get profit goals
+profit_target = profit_goals(total_cost)
+round_to = num_check("Round profit goals to nearest: $", "int", "Please enter a whole number larger than zero")
+
+# use profit goals to get selling price to see how much each item needs to be sold for, and round up
+selling_price = (total_cost + profit_target) / product_amount
+suggested_price = round_up(selling_price, round_to)
+
 # defining variables for printing in output
 
 fancy_time = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -265,7 +271,7 @@ fancy_time = datetime.now().strftime("%d/%m/%Y %H:%M")
 # print everything for our ticket and add to output array
 print()
 print_output_array(styled_statement(f"Fundraising Calculator ({product_name}, {fancy_time})", "*", 5))
-print_output_array("\n")
+print_output_array("")
 print_output_array(f"Quantity being made: {product_amount}\n")
 print_output_array(styled_statement("Variable Expenses", "=", 3))
 print_output_array(variable_df)
@@ -279,18 +285,12 @@ else:
     print_output_array("There were no fixed expenses provided.")
 
 
-print_output_array(f"Total Expenses: {format_currency(total_cost)}")
+print_output_array(f"Total Expenses: {format_currency(total_cost)}\n")
 
-# get profit goals
-profit_target = profit_goals(total_cost)
-round_to = num_check("Round profit goals to nearest: $", "int", "Please enter a whole number larger than zero")
-
-# use profit goals to get selling price to see how much each item needs to be sold for, and round up
-selling_price = (total_cost + profit_target) / product_amount
-suggested_price = round_up(selling_price, round_to)
-
-print_output_array(f"Minimum Price per {product_name}: ${selling_price:.2f}")
-print_output_array(f"Suggested Price:                  ${suggested_price:.2f}")
+print_output_array(styled_statement("Profit Goals", "=", 3))
+print_output_array(f"Profit Target: {format_currency(profit_target)}\n")
+print_output_array(f"Minimum Price per {product_name}:   ${format_currency(selling_price):.2f}")
+print_output_array(f"Suggested Price per {product_name}: ${format_currency(suggested_price):.2f}")
 
 # does the user want to save the output like mmf
 want_txt = yes_no("Would you like to print the output of this program as a file?", "Please enter yes/no.")

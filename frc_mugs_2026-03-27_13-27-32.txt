@@ -1,0 +1,21 @@
+***** Fundraising Calculator (mugs, 27/03/2026 13:26) *****
+
+
+Quantity being made: 5
+
+=== Variable Expenses ===
++--------+----------+------------+--------+
+| Item   |   Amount | $ / Item   | Cost   |
+|--------+----------+------------+--------|
+| mugs   |        5 | $1.00      | $5.00  |
++--------+----------+------------+--------+
+Variable Expense Subtotal: $5.00
+
+=== Fixed Expenses ===
+There were no fixed expenses provided.
+Total Expenses: $5.00
+
+=== Profit Goals ===
+
+Minimum Price per mugs:   $101.00
+Suggested Price per mugs: $101.00
