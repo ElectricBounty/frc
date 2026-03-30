@@ -1,0 +1,29 @@
+***** Fundraising Calculator (mug, 30/03/2026 14:24) *****
+
+Quantity being made: 300
+
+=== Variable Expenses ===
++----------+----------+------------+---------+
+| Item     |   Amount | $ / Item   | Cost    |
+|----------+----------+------------+---------|
+| mug      |      300 | $0.50      | $150.00 |
+| printing |      100 | $0.40      | $40.00  |
++----------+----------+------------+---------+
+Variable Expense Subtotal: $190.00
+
+=== Fixed Expenses ===
++--------+--------+
+| Item   | Cost   |
+|--------+--------|
+| rent   | $20.00 |
++--------+--------+
+Fixed Expense Subtotal: $20.00
+
+Total Expenses: $210.00
+
+=== Profit Goals ===
+Profit Target: $105.00
+
+Minimum Price per mug:   $1.05
+Suggested Price per mug: $2.00
+

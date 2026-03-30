@@ -56,8 +56,8 @@ def get_expenses(exp_type, amount):
 
     while True:
         # get item (string)
-        expense_item = not_blank("Item: ", "Please enter a string")
-        if len(all_items) > 0 and expense_item.lower() == "xxx":
+        expense_item = not_blank("Item: ", "Please enter an item")
+        if (len(all_items) > 0 or  exp_type == "fixed") and expense_item.lower() == "xxx":
             print(f"You entered {len(all_items)} item/s")
             break
         elif expense_item.lower() == "xxx":
@@ -80,6 +80,10 @@ def get_expenses(exp_type, amount):
         all_items.append(expense_item)
         all_amounts.append(expense_amount)
         all_costs.append(expense_cost)
+
+    # fixed expenses when you xxx early
+    if len(all_items) == 0:
+        return None
 
     # make panda
     expense_frame = pandas.DataFrame({
@@ -124,6 +128,24 @@ def yes_no(question, error):
                 return item
 
         print(error)
+
+def get_filename(default):
+    while True:
+        filename = input("Filename (leave blank for default): ")
+
+        # blank filename returns default
+        if filename == "":
+            return default
+
+        filename = filename.replace(" ", "_")
+        if len(filename) > 20 or not all(c.isalnum() or c == '_' for c in filename): # check if filename has no special characters other than _
+            print("Your filename must not contain any special characters and must be shorter than 20 characters")
+            continue
+
+        # filename is safe
+        return filename
+
+
 
 def profit_goals(total_costs):
     """calculates profit goals"""
@@ -251,14 +273,17 @@ fixed_subtotal = 0
 if has_fixed == "yes":
     print("Fixed Expenses")
     fixed_expenses = get_expenses("fixed", product_amount)
-    fixed_df = fixed_expenses[0]
-    fixed_subtotal = fixed_expenses[1]
+    if fixed_expenses is not None: # check if they exited early, which can only be done with fixed expenses
+        fixed_df = fixed_expenses[0]
+        fixed_subtotal = fixed_expenses[1]
+    else:
+        has_fixed = "no"
 
 total_cost = variable_subtotal + fixed_subtotal
 
 # get profit goals
 profit_target = profit_goals(total_cost)
-round_to = num_check("Round profit goals to nearest: $", "int", "Please enter a whole number larger than zero")
+round_to = num_check("Round profit goals up to nearest: $", "int", "Please enter a whole number larger than zero")
 
 # use profit goals to get selling price to see how much each item needs to be sold for, and round up
 selling_price = (total_cost + profit_target) / product_amount
@@ -289,16 +314,22 @@ print_output_array(f"Total Expenses: {format_currency(total_cost)}\n")
 
 print_output_array(styled_statement("Profit Goals", "=", 3))
 print_output_array(f"Profit Target: {format_currency(profit_target)}\n")
-print_output_array(f"Minimum Price per {product_name}:   ${format_currency(selling_price):.2f}")
-print_output_array(f"Suggested Price per {product_name}: ${format_currency(suggested_price):.2f}")
+print_output_array(f"Minimum Price per {product_name}:   {format_currency(selling_price)}")
+print_output_array(f"Suggested Price per {product_name}: {format_currency(suggested_price)}\n")
+
+print(styled_statement("END OF RECEIPT", "-", 5))
+print("")
 
 # does the user want to save the output like mmf
 want_txt = yes_no("Would you like to print the output of this program as a file?", "Please enter yes/no.")
 
 if want_txt == "yes":
+
     # define filename
     formatted_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    write_to = "{}_{}_{}.txt".format("frc",product_name, formatted_time)
+
+    filename = get_filename("{}_{}_{}".format("FRC", product_name, formatted_time))
+    write_to = "{}.txt".format(filename)
 
     text_file = open(write_to, "w+")
 
