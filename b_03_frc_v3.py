@@ -243,9 +243,7 @@ expenses (which includes the subtotals for these expenses).
 Finally it will tell you how much you should sell each item for
 to reach your profit goal.
 
-The data will also be written to a text file which has the
-item name as your product and today's date.
-
+The data will also be written to a text file of which you can set the name manually.
 ''')
 
 # get product name and amount
@@ -307,7 +305,7 @@ if has_fixed == "yes":
     print_output_array(fixed_df)
     print_output_array(f"Fixed Expense Subtotal: {format_currency(fixed_subtotal)}\n")
 else:
-    print_output_array("There were no fixed expenses provided.")
+    print_output_array("There were no fixed expenses provided.\n")
 
 
 print_output_array(f"Total Expenses: {format_currency(total_cost)}\n")
@@ -338,4 +336,4 @@ if want_txt == "yes":
         text_file.write(item)
         text_file.write("\n")
 
-
+print("\n Thank you for using the fundraising calculator.")
